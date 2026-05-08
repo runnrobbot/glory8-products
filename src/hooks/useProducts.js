@@ -150,16 +150,16 @@ export function useProduct(slug) {
 }
 
 export function useCategories() {
-  const { data, loading } = useFetch('categories', () => productService.getCategories())
-  return { data: data || [], loading }
+  const { data, loading, refetch } = useFetch('categories', () => productService.getCategories())
+  return { data: data || [], loading, refetch }
 }
 
 export function useCollections() {
-  const { data, loading } = useFetch('collections', () => productService.getCollections())
-  return { data: data || [], loading }
+  const { data, loading, refetch } = useFetch('collections', () => productService.getCollections())
+  return { data: data || [], loading, refetch }
 }
 
 export function useFeaturedProducts() {
-  const { data, loading } = useFetch('featured', () => productService.getFeaturedProducts())
-  return { data: data || [], loading }
+  const { data, loading, refetch } = useFetch('featured', () => productService.getFeaturedProducts())
+  return { data: data || [], loading, refetch }
 }

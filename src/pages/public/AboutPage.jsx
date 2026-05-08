@@ -96,28 +96,39 @@ export default function AboutPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
-                  className={`relative flex gap-8 ${i % 2 === 0 ? 'flex-row' : 'flex-row-reverse'}`}
+                  className="relative flex gap-4 sm:gap-8 flex-row"
                 >
-                  <div className="flex-1 text-right">
+                  {/* Mobile: selalu kiri ke kanan. Desktop: zig-zag */}
+                  <div className="hidden sm:flex flex-1 text-right">
                     {i % 2 === 0 ? (
-                      <div className="bg-white p-6 border border-[#E8E4DC] shadow-luxury">
+                      <div className="w-full bg-white p-5 sm:p-6 border border-[#E8E4DC] shadow-luxury">
                         <p className="font-display text-[#C9A455] text-xl mb-1">{m.year}</p>
                         <h3 className="font-display text-lg font-medium text-[#1C1917] mb-2">{m.title}</h3>
                         <p className="font-body text-sm text-[#9C9890]">{m.desc}</p>
                       </div>
                     ) : <div />}
                   </div>
-                  <div className="relative flex-shrink-0 flex items-center justify-center">
-                    <div className="w-3 h-3 bg-[#C9A455] rounded-full z-10" />
+                  <div className="relative flex-shrink-0 flex flex-col items-center">
+                    <div className="w-3 h-3 bg-[#C9A455] rounded-full z-10 mt-4 sm:mt-5" />
+                    {i < 3 && <div className="w-px flex-1 bg-[#E8E4DC] mt-1" />}
                   </div>
                   <div className="flex-1">
-                    {i % 2 === 1 ? (
-                      <div className="bg-white p-6 border border-[#E8E4DC] shadow-luxury">
-                        <p className="font-display text-[#C9A455] text-xl mb-1">{m.year}</p>
-                        <h3 className="font-display text-lg font-medium text-[#1C1917] mb-2">{m.title}</h3>
-                        <p className="font-body text-sm text-[#9C9890]">{m.desc}</p>
-                      </div>
-                    ) : <div />}
+                    {/* Mobile: selalu tampil di kanan dot */}
+                    <div className="sm:hidden bg-white p-4 border border-[#E8E4DC]">
+                      <p className="font-display text-[#C9A455] text-lg mb-1">{m.year}</p>
+                      <h3 className="font-display text-base font-medium text-[#1C1917] mb-1">{m.title}</h3>
+                      <p className="font-body text-sm text-[#9C9890]">{m.desc}</p>
+                    </div>
+                    {/* Desktop: zig-zag kanan */}
+                    <div className="hidden sm:block">
+                      {i % 2 === 1 ? (
+                        <div className="bg-white p-5 sm:p-6 border border-[#E8E4DC] shadow-luxury">
+                          <p className="font-display text-[#C9A455] text-xl mb-1">{m.year}</p>
+                          <h3 className="font-display text-lg font-medium text-[#1C1917] mb-2">{m.title}</h3>
+                          <p className="font-body text-sm text-[#9C9890]">{m.desc}</p>
+                        </div>
+                      ) : <div />}
+                    </div>
                   </div>
                 </motion.div>
               ))}

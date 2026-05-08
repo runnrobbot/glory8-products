@@ -44,7 +44,7 @@ export default function CollectionsPage() {
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-900" />
                   )}
-                  <div className="absolute inset-0 p-8 flex flex-col justify-end bg-gradient-to-t from-black/60 to-transparent">
+                  <div className="absolute inset-0 p-4 sm:p-8 flex flex-col justify-end bg-gradient-to-t from-black/60 to-transparent">
                     <p className="font-body text-[10px] text-[#C9A455] tracking-widest uppercase mb-2">Koleksi Premium</p>
                     <h2 className="font-display text-2xl font-light text-white mb-2">{col.name}</h2>
                     {col.description && (

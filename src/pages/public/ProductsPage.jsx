@@ -253,8 +253,8 @@ export default function ProductsPage() {
 
         {/* ── Filter bar ── */}
         <div className="flex flex-col sm:flex-row gap-3 mb-4 relative z-10">
-          {/* Search */}
-          <div className="relative flex-1 max-w-xs">
+          {/* Search — full width mobile */}
+          <div className="relative w-full sm:flex-1 sm:max-w-xs">
             <Search size={14} strokeWidth={1.5} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9C9890]" />
             <input
               type="text"
