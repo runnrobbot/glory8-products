@@ -48,6 +48,25 @@ export const ORDER_STATUSES = {
   cancelled:  { label: 'Dibatalkan',  color: 'red' },
 }
 
+export const ORDER_TYPES = {
+  retail: {
+    label: 'Retail',
+    description: 'Pembelian satuan / eceran untuk kebutuhan pribadi atau renovasi kecil.',
+  },
+  project: {
+    label: 'Project',
+    description: 'Pembelian volume besar untuk proyek konstruksi, hotel, apartemen, dll. Harga dapat dinegosiasi.',
+  },
+  sample: {
+    label: 'Sample',
+    description: 'Permintaan contoh material sebelum pembelian. Biaya sample berlaku.',
+  },
+  konsultasi: {
+    label: 'Konsultasi',
+    description: 'Konsultasi desain interior atau pemilihan material bersama tim ahli kami.',
+  },
+}
+
 export const ADMIN_REGIONS = [
   { key: 'jakarta',  label: 'Admin Jakarta',  number: WHATSAPP_NUMBERS.jakarta },
   { key: 'surabaya', label: 'Admin Surabaya', number: WHATSAPP_NUMBERS.surabaya },

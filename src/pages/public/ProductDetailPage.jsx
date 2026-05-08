@@ -8,6 +8,7 @@ import {
 import { useProduct } from '@/hooks/useProducts'
 import { useCartStore } from '@/store/cartStore'
 import { formatCurrency, getPrimaryImage } from '@/lib/utils'
+import { usePageMeta } from '@/hooks/usePageMeta'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 import WhatsAppOrderModal from '@/components/shared/WhatsAppOrderModal'
 import toast from 'react-hot-toast'
@@ -34,6 +35,15 @@ export default function ProductDetailPage() {
 
   const images = product.product_images?.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)) || []
   const primaryImage = images[activeImage]?.url || null
+
+  // Dynamic meta for share links
+  usePageMeta({
+    title:       product.name,
+    description: product.short_description || `${product.name} — material interior premium dari Glory8 Products.`,
+    image:       getPrimaryImage(product.product_images),
+    url:         `https://glory8.id/products/${product.slug}`,
+    type:        'product',
+  })
 
   const handleAddToCart = () => {
     addItem(product, qty)

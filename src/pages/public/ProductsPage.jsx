@@ -7,6 +7,7 @@ import { SkeletonGrid } from '@/components/ui/Skeleton'
 import EmptyState from '@/components/ui/EmptyState'
 import WhatsAppOrderModal from '@/components/shared/WhatsAppOrderModal'
 import { useProducts, useCategories, useCollections } from '@/hooks/useProducts'
+import { usePageMeta } from '@/hooks/usePageMeta'
 
 const F = 'Inter, sans-serif'
 
@@ -162,6 +163,12 @@ export default function ProductsPage() {
 
   const { data: categories } = useCategories()
   const { data: collections } = useCollections()
+
+  usePageMeta({
+    title:       'Katalog Produk',
+    description: 'Temukan koleksi WPC Wall Panel, SPC Flooring, Vinyl, dan PVC Panel terbaik dari Glory8 Products.',
+    url:         'https://glory8.id/products',
+  })
 
   // Cari category_id dari slug
   const selectedCat = categories.find(c => c.slug === category)

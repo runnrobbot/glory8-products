@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Block admin area from indexing
+Disallow: /admin
+Disallow: /login
+
+# Block API/Supabase paths if exposed
+Disallow: /api/
+
+Sitemap: https://glory8-products.vercel.app/sitemap.xml

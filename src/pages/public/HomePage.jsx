@@ -6,6 +6,7 @@ import ProductCard from '@/components/product/ProductCard'
 import { SkeletonGrid } from '@/components/ui/Skeleton'
 import WhatsAppOrderModal from '@/components/shared/WhatsAppOrderModal'
 import { useFeaturedProducts, useCollections, useCategories } from '@/hooks/useProducts'
+import { usePageMeta } from '@/hooks/usePageMeta'
 import { useCartStore } from '@/store/cartStore'
 
 /* ── helpers ── */
@@ -45,6 +46,11 @@ export default function HomePage() {
   const { data: featured, loading: featuredLoading } = useFeaturedProducts()
   const { data: collections, loading: collectionsLoading } = useCollections()
   const { data: categories } = useCategories()
+
+  usePageMeta({
+    title:       'Material Interior Premium',
+    description: 'WPC Wall Panel, SPC Flooring, Vinyl, PVC Panel. Material interior premium untuk hunian dan proyek komersial. Jakarta & Surabaya.',
+  })
   const { addItem } = useCartStore()
 
   /* parallax hero */
@@ -207,6 +213,7 @@ export default function HomePage() {
       {/* ═══════════════════════════════════════════════════════
           PRODUK UNGGULAN — Layout asimetris
       ═══════════════════════════════════════════════════════ */}
+      {(featuredLoading || featured?.length > 0) && (
       <section className="py-28 bg-[#FAF8F4]">
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
 
@@ -245,7 +252,7 @@ export default function HomePage() {
 
           {featuredLoading ? (
             <SkeletonGrid count={4} />
-          ) : featured?.length > 0 ? (
+          ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-px bg-[#E8E4DC]">
               {featured.slice(0, 8).map((product, i) => (
                 <motion.div
@@ -260,18 +267,10 @@ export default function HomePage() {
                 </motion.div>
               ))}
             </div>
-          ) : (
-            <div className="py-24 text-center border border-[#E8E4DC]">
-              <p
-                className="text-[#9C9890] text-[13px]"
-                style={{ fontFamily: 'Inter, sans-serif' }}
-              >
-                Belum ada produk unggulan — tambahkan di Admin Dashboard
-              </p>
-            </div>
           )}
         </div>
       </section>
+      )}
 
       {/* ═══════════════════════════════════════════════════════
           DIVIDER — Garis tipis dengan label di tengah

@@ -1,9 +1,15 @@
 import { motion } from 'framer-motion'
 import { MapPin, Phone, Mail, MessageCircle, Clock } from 'lucide-react'
+import { usePageMeta } from '@/hooks/usePageMeta'
 
 const F = 'Inter, sans-serif'
 
 export default function ContactPage() {
+  usePageMeta({
+    title:       'Hubungi Kami',
+    description: 'Konsultasi material interior Glory8 Products. Hubungi kami via WhatsApp atau Live Chat. Jakarta: 0812-5438-891 · Surabaya: 0813-5952-2218.',
+    url:         'https://glory8.id/contact',
+  })
   return (
     <div className="min-h-screen bg-[#FAF8F4] pt-20">
       {/* Header */}
@@ -74,7 +80,7 @@ export default function ContactPage() {
                 <div className="space-y-1">
                   {[
                     { day: 'Senin – Jumat', time: '08.00 – 17.00 WIB' },
-                    { day: 'Sabtu',         time: '08.00 – 14.00 WIB' },
+                    { day: 'Sabtu',         time: '08.00 – 17.00 WIB' },
                     { day: 'Minggu',        time: 'Tutup' },
                   ].map(row => (
                     <div key={row.day} className="flex justify-between gap-6">

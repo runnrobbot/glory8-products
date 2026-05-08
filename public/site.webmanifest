@@ -1,0 +1,13 @@
+{
+  "name": "Glory8 Products",
+  "short_name": "Glory8",
+  "description": "Material interior premium — WPC, SPC, Vinyl, PVC Panel",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF8F4",
+  "theme_color": "#1C1917",
+  "icons": [
+    { "src": "/favicon-96x96.png", "sizes": "96x96",   "type": "image/png" },
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}

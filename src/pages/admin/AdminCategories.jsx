@@ -35,15 +35,17 @@ export default function AdminCategories() {
     setSaving(true)
     try {
       if (edit) {
-        await supabase.from('product_categories').update(form).eq('id', edit.id)
+        const { error } = await supabase.from('product_categories').update(form).eq('id', edit.id)
+        if (error) throw error
       } else {
-        await supabase.from('product_categories').insert(form)
+        const { error } = await supabase.from('product_categories').insert(form)
+        if (error) throw error
       }
       toast.success(edit ? 'Kategori diperbarui' : 'Kategori ditambahkan')
       setShowModal(false)
       refetch()
     } catch (err) {
-      toast.error(err.message)
+      toast.error(err?.message || 'Gagal menyimpan kategori')
     } finally {
       setSaving(false)
     }

@@ -1,8 +1,12 @@
 node_modules
 dist
-
 .env
 .env.local
 .DS_Store
 *.log
-            
+
+supabase/functions/create-user/index.js
+supabase/migrations/000_drop_all.sql
+supabase/migrations/001_initial.schema.sql
+supabase/migrations/002_fix_rls_and_storage.sql
+supabase/migrations/003_livechat.sql

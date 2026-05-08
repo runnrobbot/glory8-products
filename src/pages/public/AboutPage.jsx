@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { Award, Users, MapPin, TrendingUp } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { usePageMeta } from '@/hooks/usePageMeta'
 
 const MILESTONES = [
   { year: '2014', title: 'Berdiri', desc: 'Glory8 didirikan dengan visi menyediakan material interior berkualitas premium.' },
@@ -10,6 +11,11 @@ const MILESTONES = [
 ]
 
 export default function AboutPage() {
+  usePageMeta({
+    title:       'Tentang Kami',
+    description: 'Glory8 Products — penyedia material interior premium WPC, SPC, Vinyl, dan PVC Panel terpercaya di Jakarta & Surabaya.',
+    url:         'https://glory8.id/about',
+  })
   return (
     <div className="min-h-screen bg-[#FAF8F4] pt-20">
       {/* Hero */}
