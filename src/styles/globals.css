@@ -1,0 +1,137 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────
+   CSS CUSTOM PROPERTIES — Glory8 Design System
+   Referensi: #FAF8F4 bg, #1C1917 dark, #C9A455 gold
+───────────────────────────────────────── */
+:root {
+  --bg-cream:   #FAF8F4;
+  --bg-cream-2: #F5F2EC;
+  --border:     #E8E4DC;
+  --border-2:   #F0EDE6;
+  --dark:       #1C1917;
+  --dark-2:     #292524;
+  --gold:       #C9A455;
+  --gold-light: #D4B570;
+  --muted:      #9C9890;
+  --muted-2:    #6B7280;
+  --font-display: 'Cormorant Garamond', serif;
+  --font-body:    'Inter', sans-serif;
+}
+
+/* ─── BASE ─────────────────────────────── */
+@layer base {
+  html { font-size: 16px; }
+  body {
+    background-color: var(--bg-cream);
+    color: var(--dark);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+  * { box-sizing: border-box; }
+  ::selection { background: #C9A45530; color: var(--dark); }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar       { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg-cream-2); }
+  ::-webkit-scrollbar-thumb { background: #D4CAC0; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+  .hide-scrollbar                       { -ms-overflow-style: none; scrollbar-width: none; }
+  .hide-scrollbar::-webkit-scrollbar    { display: none; }
+}
+
+/* ─── COMPONENTS ───────────────────────── */
+@layer components {
+
+  /* Buttons */
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-6 py-3 text-[13px] tracking-[0.08em] transition-all duration-300;
+    font-family: var(--font-body);
+    font-weight: 500;
+    background-color: var(--dark);
+    color: #ffffff;
+  }
+  .btn-primary:hover { background-color: var(--gold); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .btn-outline {
+    @apply inline-flex items-center gap-2 px-6 py-3 text-[13px] tracking-[0.08em] transition-all duration-300;
+    font-family: var(--font-body);
+    font-weight: 500;
+    border: 1px solid var(--dark);
+    color: var(--dark);
+    background: transparent;
+  }
+  .btn-outline:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  .btn-gold {
+    @apply inline-flex items-center gap-2 px-6 py-3 text-[13px] tracking-[0.08em] transition-all duration-300;
+    font-family: var(--font-body);
+    font-weight: 500;
+    background-color: var(--gold);
+    color: #ffffff;
+  }
+  .btn-gold:hover { background-color: #B8933F; }
+
+  /* Input */
+  .input-luxury {
+    @apply w-full px-4 py-3 text-[13px] transition-colors duration-200 focus:outline-none;
+    font-family: var(--font-body);
+    border: 1px solid var(--border);
+    background: #ffffff;
+    color: var(--dark);
+  }
+  .input-luxury::placeholder { color: #C4BEB5; }
+  .input-luxury:focus { border-color: var(--gold); }
+  .input-luxury:disabled { background: var(--bg-cream-2); color: var(--muted); cursor: not-allowed; }
+
+  /* Cards */
+  .card-luxury {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 20px rgba(0,0,0,0.04);
+  }
+
+  /* Typography */
+  .section-subtitle {
+    display: block;
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 400;
+    line-height: 1.1;
+    color: var(--dark);
+  }
+  .section-title em { font-style: italic; font-weight: 300; }
+
+  /* Admin sidebar nav */
+  .admin-nav-link {
+    @apply flex items-center gap-3 px-4 py-2.5 text-[13px] transition-all duration-200 rounded-none;
+    font-family: var(--font-body);
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    color: #6B7280;
+  }
+  .admin-nav-link:hover { background: var(--bg-cream-2); color: var(--dark); }
+  .admin-nav-link.active { background: var(--dark); color: #ffffff; }
+  .admin-nav-link.active svg { color: var(--gold); }
+
+  /* Skeleton */
+  .skeleton { background: linear-gradient(90deg, #F0EDE6 25%, #E8E4DC 50%, #F0EDE6 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+}
