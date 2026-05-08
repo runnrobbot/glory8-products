@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { MapPin, Phone, Mail, Instagram } from 'lucide-react'
 
 const WHATSAPP = {
-  jakarta:  { number: '6281254388912',  label: 'Jakarta' },
+  jakarta:  { number: '628125438891',  label: 'Jakarta' },
   surabaya: { number: '6281359522218',  label: 'Surabaya' },
 }
 

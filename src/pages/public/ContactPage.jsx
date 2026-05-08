@@ -102,7 +102,7 @@ export default function ContactPage() {
               </p>
               <div className="space-y-3">
                 <a
-                  href="https://wa.me/6281254388912"
+                  href="https://wa.me/628125438891"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-4 bg-green-50 border border-green-200 px-5 py-4 hover:bg-green-100 transition-colors group"

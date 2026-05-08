@@ -32,7 +32,7 @@ export const getPrimaryImage = (images = []) => {
 }
 
 export const WHATSAPP_NUMBERS = {
-  jakarta:  '6281254388912',
+  jakarta:  '628125438891',
   surabaya: '6281359522218',
 }
 
