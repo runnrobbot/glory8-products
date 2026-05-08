@@ -41,9 +41,20 @@ export default function ProductDetailPage() {
     title:       product.name,
     description: product.short_description || `${product.name} — material interior premium dari Glory8 Products.`,
     image:       getPrimaryImage(product.product_images),
-    url:         `https://glory8.id/products/${product.slug}`,
+    url:         `https://glory8-products.vercel.app/products/${product.slug}`,
     type:        'product',
   })
+
+  // Tipe produk dari data yang sudah di-fetch (product_types join)
+  const activeTypes = (product.product_types || [])
+    .filter(t => t.is_active)
+    .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+
+  const [selectedType, setSelectedType] = useState(null)
+
+  // Harga aktif — dari tipe yang dipilih atau harga produk induk
+  const activePrice = (selectedType?.price != null ? selectedType.price : null) ?? product.price
+  const activeUnit  = product.unit
 
   const handleAddToCart = () => {
     addItem(product, qty)
@@ -132,14 +143,60 @@ export default function ProductDetailPage() {
               {product.description || product.short_description}
             </p>
 
-            <div className="flex items-baseline gap-2 mb-8">
+            <div className="flex items-baseline gap-2 mb-6">
               <span className="font-display text-3xl font-light text-[#1C1917]">
-                {formatCurrency(product.price)}
+                {formatCurrency(activePrice)}
               </span>
-              {product.unit && (
-                <span className="font-body text-sm text-[#9C9890]">/ {product.unit}</span>
+              {activeUnit && (
+                <span className="font-body text-sm text-[#9C9890]">/ {activeUnit}</span>
               )}
             </div>
+
+            {/* Tipe Produk */}
+            {activeTypes.length > 0 && (
+              <div className="mb-8">
+                <h3 className="font-body text-xs font-semibold tracking-wide text-[#6B7280] uppercase mb-3">
+                  Pilih Tipe
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {activeTypes.map((t) => (
+                    <button
+                      key={t.id}
+                      onClick={() => setSelectedType(selectedType?.id === t.id ? null : t)}
+                      className={`flex flex-col items-start px-3 py-2.5 border text-left transition-all ${
+                        selectedType?.id === t.id
+                          ? 'border-[#1C1917] bg-[#1C1917] text-white'
+                          : 'border-[#E8E4DC] bg-white text-[#1C1917] hover:border-[#C9A455]'
+                      }`}
+                    >
+                      <span className="text-[13px] font-medium" style={{ fontFamily: 'Inter, sans-serif' }}>{t.name}</span>
+                      <div className="flex flex-wrap gap-x-2 mt-0.5">
+                        {t.price != null && (
+                          <span className="text-[11px] text-[#C9A455]" style={{ fontFamily: 'Inter, sans-serif' }}>
+                            {formatCurrency(t.price)}
+                          </span>
+                        )}
+                        {t.code && (
+                          <span className={`text-[10px] font-mono ${selectedType?.id === t.id ? 'text-white/60' : 'text-[#9C9890]'}`}>
+                            {t.code}
+                          </span>
+                        )}
+                        {t.stock != null && (
+                          <span className={`text-[10px] ${selectedType?.id === t.id ? 'text-white/60' : 'text-[#9C9890]'}`} style={{ fontFamily: 'Inter, sans-serif' }}>
+                            Stok: {t.stock}
+                          </span>
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                {selectedType?.description && (
+                  <p className="text-[12px] text-[#9C9890] mt-2 italic" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    {selectedType.description}
+                  </p>
+                )}
+              </div>
+            )}
 
             {/* Specs */}
             <div className="grid grid-cols-2 gap-3 mb-8">

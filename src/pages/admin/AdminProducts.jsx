@@ -9,6 +9,7 @@ import { formatCurrency, slugify } from '@/lib/utils'
 import Modal from '@/components/ui/Modal'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 import EmptyState from '@/components/ui/EmptyState'
+import ProductTypesManager from '@/components/product/ProductTypesManager'
 import toast from 'react-hot-toast'
 
 /* ─── constants ──────────────────────────────────────────────── */
@@ -431,11 +432,12 @@ export default function AdminProducts() {
         {/* Tabs */}
         <div className="flex border-b border-[#E8E4DC] mb-5 -mt-1">
           {[
-            { key: 'info',   label: 'Informasi Produk' },
-            { key: 'photos', label: savedProductId ? 'Foto Produk' : 'Foto (simpan dulu)' },
+            { key: 'info',     label: 'Informasi Produk' },
+            { key: 'photos',   label: savedProductId ? 'Foto Produk' : 'Foto (simpan dulu)' },
+            { key: 'types',    label: savedProductId ? 'Tipe Produk' : 'Tipe (simpan dulu)' },
           ].map(tab => (
             <button key={tab.key} type="button"
-              disabled={tab.key === 'photos' && !savedProductId}
+              disabled={tab.key !== 'info' && !savedProductId}
               onClick={() => setActiveTab(tab.key)}
               className={`px-5 py-2.5 text-[12px] tracking-[0.04em] border-b-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
                 activeTab === tab.key
@@ -573,6 +575,20 @@ export default function AdminProducts() {
               Upload beberapa foto. Klik ⭐ untuk menjadikan foto utama yang tampil di listing produk.
             </p>
             <ImageUploader productId={savedProductId} />
+            <div className="pt-3 border-t border-[#E8E4DC]">
+              <button type="button" onClick={closeModal}
+                className="w-full px-4 py-2.5 bg-[#1C1917] text-white text-[12px] hover:bg-[#C9A455] transition-colors"
+                style={{ fontFamily: F }}>
+                Selesai
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Tab: Tipe Produk */}
+        {activeTab === 'types' && (
+          <div className="space-y-4">
+            <ProductTypesManager productId={savedProductId} />
             <div className="pt-3 border-t border-[#E8E4DC]">
               <button type="button" onClick={closeModal}
                 className="w-full px-4 py-2.5 bg-[#1C1917] text-white text-[12px] hover:bg-[#C9A455] transition-colors"

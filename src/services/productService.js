@@ -4,7 +4,8 @@ const PRODUCT_SELECT = `
   *,
   product_categories(id, name, slug),
   product_images(id, url, alt, is_primary, sort_order),
-  product_collections(id, name, slug)
+  product_collections(id, name, slug),
+  product_types(id, name, code, price, stock, description, is_active, sort_order)
 `
 
 // Helper: konversi empty string ke null untuk UUID fields
@@ -224,5 +225,51 @@ export const productService = {
       .order('sort_order')
     if (error) throw error
     return data || []
+  },
+}
+
+// ── Product Types CRUD ──────────────────────────────────────
+export const productTypeService = {
+  async getByProduct(productId) {
+    const { data, error } = await supabase
+      .from('product_types')
+      .select('*')
+      .eq('product_id', productId)
+      .order('sort_order')
+    if (error) throw error
+    return data || []
+  },
+
+  async upsert(type) {
+    const payload = {
+      ...type,
+      price: type.price !== '' && type.price != null ? Number(type.price) : null,
+      stock: type.stock !== '' && type.stock != null ? parseInt(type.stock) : null,
+    }
+    const { data, error } = await supabase
+      .from('product_types')
+      .upsert(payload)
+      .select()
+      .single()
+    if (error) throw error
+    return data
+  },
+
+  async delete(id) {
+    const { error } = await supabase
+      .from('product_types')
+      .delete()
+      .eq('id', id)
+    if (error) throw error
+  },
+
+  async reorder(items) {
+    // items: [{id, sort_order}]
+    for (const item of items) {
+      await supabase
+        .from('product_types')
+        .update({ sort_order: item.sort_order })
+        .eq('id', item.id)
+    }
   },
 }
