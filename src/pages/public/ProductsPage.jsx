@@ -72,7 +72,7 @@ function FilterDropdown({ label, value, options, onChange, valueKey = 'value', l
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.12 }}
-            className="absolute top-full left-0 mt-1 bg-white border border-[#E8E4DC] shadow-md z-20 min-w-[160px]"
+            className="absolute top-full left-0 mt-1 bg-white border border-[#E8E4DC] shadow-lg z-50 min-w-[180px]"
           >
             {options.map((opt) => (
               <button
@@ -245,7 +245,7 @@ export default function ProductsPage() {
         )}
 
         {/* ── Filter bar ── */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-4">
+        <div className="flex flex-col sm:flex-row gap-3 mb-4 relative z-10">
           {/* Search */}
           <div className="relative flex-1 max-w-xs">
             <Search size={14} strokeWidth={1.5} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9C9890]" />
