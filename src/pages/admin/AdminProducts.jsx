@@ -11,7 +11,6 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner'
 import EmptyState from '@/components/ui/EmptyState'
 import ProductTypesManager from '@/components/product/ProductTypesManager'
 import toast from 'react-hot-toast'
-import toast from 'react-hot-toast'
 
 /* ─── constants ──────────────────────────────────────────────── */
 const EMPTY_FORM = {
