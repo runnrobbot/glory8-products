@@ -19,7 +19,25 @@ export default function ProductDetailPage() {
   const [qty, setQty] = useState(1)
   const [activeImage, setActiveImage] = useState(0)
   const [orderModalOpen, setOrderModalOpen] = useState(false)
+  const [selectedType, setSelectedType] = useState(null)
   const { addItem } = useCartStore()
+
+  // ── Semua hooks harus dipanggil sebelum early return ──────
+  const images      = product?.product_images?.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)) || []
+  const activeTypes = (product?.product_types || [])
+    .filter(t => t.is_active)
+    .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+  const activePrice = (selectedType?.price != null ? selectedType.price : null) ?? product?.price
+  const activeUnit  = product?.unit
+
+  usePageMeta({
+    title:       product?.name,
+    description: product?.short_description || `${product?.name} — material interior premium dari Glory8 Products.`,
+    image:       getPrimaryImage(product?.product_images),
+    url:         `https://glory8-products.vercel.app/products/${product?.slug}`,
+    type:        'product',
+  })
+  // ─────────────────────────────────────────────────────────
 
   if (loading) return <LoadingSpinner fullScreen />
   if (error || !product) {
@@ -33,28 +51,7 @@ export default function ProductDetailPage() {
     )
   }
 
-  const images = product.product_images?.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)) || []
   const primaryImage = images[activeImage]?.url || null
-
-  // Dynamic meta for share links
-  usePageMeta({
-    title:       product.name,
-    description: product.short_description || `${product.name} — material interior premium dari Glory8 Products.`,
-    image:       getPrimaryImage(product.product_images),
-    url:         `https://glory8-products.vercel.app/products/${product.slug}`,
-    type:        'product',
-  })
-
-  // Tipe produk dari data yang sudah di-fetch (product_types join)
-  const activeTypes = (product.product_types || [])
-    .filter(t => t.is_active)
-    .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
-
-  const [selectedType, setSelectedType] = useState(null)
-
-  // Harga aktif — dari tipe yang dipilih atau harga produk induk
-  const activePrice = (selectedType?.price != null ? selectedType.price : null) ?? product.price
-  const activeUnit  = product.unit
 
   const handleAddToCart = () => {
     addItem(product, qty)
