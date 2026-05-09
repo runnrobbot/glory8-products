@@ -21,9 +21,9 @@ const NAV = [
 ]
 
 const ROLE_LABEL = {
-  super_admin: '👑 Super Admin',
-  admin:       '🛡 Admin',
-  staff:       '👤 Staff',
+  super_admin: 'Super Admin',
+  admin:       'Admin',
+  staff:       'Staff',
 }
 
 // ── Sidebar dipindah ke luar AdminLayout ──────────────────────

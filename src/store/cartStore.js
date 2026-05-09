@@ -67,7 +67,7 @@ export const useCartStore = create(
         const subtotal = get().subtotal
 
         const msg = [
-          '🏠 *GLORY8 – Order Baru*',
+          '*GLORY8 – Order Baru*',
           '─────────────────────',
           '*Produk Yang Dipesan:*',
           ...lines,

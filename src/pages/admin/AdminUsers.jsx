@@ -361,7 +361,7 @@ export default function AdminUsers() {
               <option value="">-- Pilih role --</option>
               {roles.map(r => (
                 <option key={r.id} value={r.id}>
-                  {r.name === 'super_admin' ? '👑 Super Admin' : r.name === 'admin' ? '🛡 Admin' : '👤 Staff'}
+                  {r.name === 'super_admin' ? 'Super Admin' : r.name === 'admin' ? 'Admin' : 'Staff'}
                 </option>
               ))}
             </select>
