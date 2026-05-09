@@ -70,9 +70,10 @@ export default function CartDrawer() {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -20 }}
-                            className="flex gap-4 py-4 border-b border-[#E8E4DC] last:border-0"
+                            className="flex gap-3 py-4 border-b border-[#E8E4DC] last:border-0"
                           >
-                            <div className="w-18 h-18 bg-[#F5F2EC] flex-shrink-0 overflow-hidden">
+                            {/* Thumbnail — ukuran tetap, tidak besar di mobile */}
+                            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-[#F5F2EC] flex-shrink-0 overflow-hidden rounded-sm">
                               {image ? (
                                 <img src={image} alt={item.product.name} className="w-full h-full object-cover" />
                               ) : (
@@ -81,6 +82,7 @@ export default function CartDrawer() {
                                 </div>
                               )}
                             </div>
+                            {/* Konten — grow, tidak overflow */}
                             <div className="flex-1 min-w-0">
                               <p className="font-body text-sm font-medium text-gray-800 leading-snug line-clamp-2">
                                 {item.product.name}
@@ -88,24 +90,28 @@ export default function CartDrawer() {
                               <p className="font-body text-xs text-[#C9A455] mt-0.5">
                                 {formatCurrency(item.product.price)}
                               </p>
-                              <div className="flex items-center gap-3 mt-2.5">
+                              {/* Row: qty control + total + hapus */}
+                              <div className="flex items-center gap-2 mt-2 flex-wrap">
                                 <div className="flex items-center border border-[#E8E4DC]">
                                   <button
                                     onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
                                     className="p-1.5 text-[#9C9890] hover:text-gray-700 transition-colors"
                                   >
-                                    <Minus size={12} strokeWidth={1.5} />
+                                    <Minus size={11} strokeWidth={1.5} />
                                   </button>
-                                  <span className="w-8 text-center font-body text-sm text-gray-700">
+                                  <span className="w-7 text-center font-body text-sm text-gray-700">
                                     {item.quantity}
                                   </span>
                                   <button
                                     onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
                                     className="p-1.5 text-[#9C9890] hover:text-gray-700 transition-colors"
                                   >
-                                    <Plus size={12} strokeWidth={1.5} />
+                                    <Plus size={11} strokeWidth={1.5} />
                                   </button>
                                 </div>
+                                <span className="font-body text-sm font-semibold text-gray-800 flex-1">
+                                  {formatCurrency((item.product.price || 0) * item.quantity)}
+                                </span>
                                 <button
                                   onClick={() => removeItem(item.product.id)}
                                   className="p-1 text-gray-300 hover:text-red-400 transition-colors"
@@ -113,11 +119,6 @@ export default function CartDrawer() {
                                   <Trash2 size={13} strokeWidth={1.5} />
                                 </button>
                               </div>
-                            </div>
-                            <div className="text-right">
-                              <p className="font-body text-sm font-semibold text-gray-800">
-                                {formatCurrency((item.product.price || 0) * item.quantity)}
-                              </p>
                             </div>
                           </motion.div>
                         )

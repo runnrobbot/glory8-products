@@ -90,7 +90,7 @@ export default function HomePage() {
             className="text-[#C9A455] text-[11px] tracking-[0.4em] uppercase mb-5"
             style={{ fontFamily: 'Inter, sans-serif', fontWeight: 400 }}
           >
-            Premium Interior Material
+            GLORY8 PRODUCTS
           </motion.p>
 
           {/* Headline — editorial besar */}

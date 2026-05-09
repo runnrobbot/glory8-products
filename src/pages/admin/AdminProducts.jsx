@@ -303,8 +303,8 @@ export default function AdminProducts() {
       setSavedProductId(saved.id)
       if (!editProduct) setEditProduct(saved)
 
-      toast.success(editProduct ? 'Produk diperbarui' : 'Produk disimpan — upload foto sekarang')
-      if (!editProduct) setActiveTab('photos')
+      toast.success(editProduct ? 'Produk diperbarui' : 'Produk disimpan — isi tipe produk sekarang')
+      if (!editProduct) setActiveTab('types')
     } catch (err) {
       toast.error(err.message)
     } finally {
@@ -433,8 +433,8 @@ export default function AdminProducts() {
         <div className="flex border-b border-[#E8E4DC] mb-5 -mt-1">
           {[
             { key: 'info',     label: 'Informasi Produk' },
-            { key: 'photos',   label: savedProductId ? 'Foto Produk' : 'Foto (simpan dulu)' },
             { key: 'types',    label: savedProductId ? 'Tipe Produk' : 'Tipe (simpan dulu)' },
+            { key: 'photos',   label: savedProductId ? 'Foto Produk' : 'Foto (simpan dulu)' },
           ].map(tab => (
             <button key={tab.key} type="button"
               disabled={tab.key !== 'info' && !savedProductId}
@@ -589,11 +589,16 @@ export default function AdminProducts() {
         {activeTab === 'types' && (
           <div className="space-y-4">
             <ProductTypesManager productId={savedProductId} />
-            <div className="pt-3 border-t border-[#E8E4DC]">
+            <div className="pt-3 border-t border-[#E8E4DC] flex gap-3">
               <button type="button" onClick={closeModal}
-                className="w-full px-4 py-2.5 bg-[#1C1917] text-white text-[12px] hover:bg-[#C9A455] transition-colors"
+                className="flex-1 px-4 py-2.5 border border-[#E8E4DC] text-[12px] text-[#6B7280] hover:border-[#1C1917] hover:text-[#1C1917] transition-colors"
                 style={{ fontFamily: F }}>
                 Selesai
+              </button>
+              <button type="button" onClick={() => setActiveTab('photos')}
+                className="flex-1 px-4 py-2.5 bg-[#1C1917] text-white text-[12px] hover:bg-[#C9A455] transition-colors"
+                style={{ fontFamily: F }}>
+                Lanjut ke Foto →
               </button>
             </div>
           </div>

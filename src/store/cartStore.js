@@ -66,7 +66,8 @@ export const useCartStore = create(
         )
         const subtotal = get().subtotal
 
-        const msg = [
+        // Return plain string — encoding dilakukan di WhatsAppOrderModal
+        return [
           '*GLORY8 – Order Baru*',
           '─────────────────────',
           '*Produk Yang Dipesan:*',
@@ -78,8 +79,6 @@ export const useCartStore = create(
         ]
           .filter(Boolean)
           .join('\n')
-
-        return encodeURIComponent(msg)
       },
     }),
     {

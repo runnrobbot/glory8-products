@@ -35,7 +35,7 @@ export default function WhatsAppOrderModal({ isOpen, onClose }) {
     const budgetLine = budget
       ? `\n*Estimasi Budget:* Rp ${budget}`
       : ''
-    const baseMessage = buildWhatsAppMessage(notes)
+    const baseMessage = buildWhatsAppMessage(notes)   // plain string
     const fullMessage  = baseMessage + typeLine + budgetLine
     const url = getWhatsAppUrl(region.number, encodeURIComponent(fullMessage))
     window.open(url, '_blank')
