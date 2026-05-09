@@ -7,6 +7,7 @@ import { SkeletonGrid } from '@/components/ui/Skeleton'
 import EmptyState from '@/components/ui/EmptyState'
 import WhatsAppOrderModal from '@/components/shared/WhatsAppOrderModal'
 import { useProducts, useCategories, useCollections } from '@/hooks/useProducts'
+import Pagination from '@/components/ui/Pagination'
 import { usePageMeta } from '@/hooks/usePageMeta'
 
 const F = 'Inter, sans-serif'
@@ -182,6 +183,12 @@ export default function ProductsPage() {
   // Sort & filter harga di client
   const products = sortProducts(filterByPrice(rawProducts, priceRange), sort)
 
+  const PER_PAGE   = 12
+  const [page, setPage] = useState(1)
+
+  // Reset halaman setiap kali filter berubah
+  useEffect(() => { setPage(1) }, [category, collection, priceRange, sort, search])
+
   function setParam(key, value) {
     const p = new URLSearchParams(searchParams)
     if (value) p.set(key, value)
@@ -337,25 +344,31 @@ export default function ProductsPage() {
             title="Produk tidak ditemukan"
             description="Coba ubah filter atau kata kunci pencarian Anda"
           />
-        ) : (
-          <>
-            <p className="font-body text-[11px] text-[#9C9890] mb-6" style={{ fontFamily: F }}>
-              {products.length} produk ditemukan
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {products.map((product, i) => (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: Math.min(i * 0.04, 0.3) }}
-                >
-                  <ProductCard product={product} onBuyNow={() => setOrderModalOpen(true)} />
-                </motion.div>
-              ))}
-            </div>
-          </>
-        )}
+        ) : (() => {
+          const totalPages = Math.ceil(products.length / PER_PAGE)
+          const paginated  = products.slice((page - 1) * PER_PAGE, page * PER_PAGE)
+          return (
+            <>
+              <p className="font-body text-[11px] text-[#9C9890] mb-6" style={{ fontFamily: F }}>
+                {products.length} produk ditemukan
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {paginated.map((product, i) => (
+                  <motion.div
+                    key={product.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: Math.min(i * 0.04, 0.3) }}
+                  >
+                    <ProductCard product={product} onBuyNow={() => setOrderModalOpen(true)} />
+                  </motion.div>
+                ))}
+              </div>
+              <Pagination page={page} totalPages={totalPages} onPageChange={(p) => { setPage(p); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                total={products.length} perPage={PER_PAGE} />
+            </>
+          )
+        })()}
       </div>
 
       <WhatsAppOrderModal isOpen={orderModalOpen} onClose={() => setOrderModalOpen(false)} />

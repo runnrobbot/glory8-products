@@ -3,14 +3,26 @@ import {
   Plus, Search, Edit2, Trash2, Eye, EyeOff,
   Upload, X, Star, Image as ImageIcon, Loader2
 } from 'lucide-react'
-import { productService } from '@/services/productService'
+import { productService, productTypeService } from '@/services/productService'
 import { useCategories, useCollections, invalidateCache } from '@/hooks/useProducts'
 import { formatCurrency, slugify } from '@/lib/utils'
+import { supabase } from '@/lib/supabase'
 import Modal from '@/components/ui/Modal'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 import EmptyState from '@/components/ui/EmptyState'
 import ProductTypesManager from '@/components/product/ProductTypesManager'
+import Pagination from '@/components/ui/Pagination'
 import toast from 'react-hot-toast'
+
+/* ─── Rupiah helpers ─────────────────────────────────────────── */
+function fmtRupiah(raw) {
+  const digits = String(raw ?? '').replace(/\D/g, '')
+  if (!digits) return ''
+  return new Intl.NumberFormat('id-ID').format(Number(digits))
+}
+function parseRupiah(str) {
+  return str ? Number(String(str).replace(/\./g, '').replace(/,/g, '')) : null
+}
 
 /* ─── constants ──────────────────────────────────────────────── */
 const EMPTY_FORM = {
@@ -196,8 +208,11 @@ export default function AdminProducts() {
   const [saving, setSaving]             = useState(false)
   const [savedProductId, setSavedProductId] = useState(null)
   const [activeTab, setActiveTab]       = useState('info')
+  const [pendingTypes, setPendingTypes] = useState([])   // tipe sebelum produk disimpan
+  const [page, setPage] = useState(1)
+  const PER_PAGE = 10
   const searchTimerRef                  = useRef(null)
-  const activeRequestRef                = useRef(0) // untuk batalkan request lama
+  const activeRequestRef                = useRef(0)
 
   const { data: categories } = useCategories()
   const { data: collections } = useCollections()
@@ -226,6 +241,7 @@ export default function AdminProducts() {
 
   const handleSearchChange = (val) => {
     setSearch(val)
+    setPage(1)
     clearTimeout(searchTimerRef.current)
     searchTimerRef.current = setTimeout(() => fetchProducts(val), 350)
   }
@@ -235,6 +251,7 @@ export default function AdminProducts() {
     setEditProduct(null)
     setSavedProductId(null)
     setForm(EMPTY_FORM)
+    setPendingTypes([])
     setActiveTab('info')
     setShowModal(true)
   }
@@ -242,12 +259,13 @@ export default function AdminProducts() {
   function openEdit(product) {
     setEditProduct(product)
     setSavedProductId(product.id)
+    setPendingTypes([])
     setForm({
       name:              product.name              || '',
       slug:              product.slug              || '',
       short_description: product.short_description || '',
       description:       product.description       || '',
-      price:             product.price             ?? '',
+      price:             product.price != null ? fmtRupiah(String(product.price)) : '',
       unit:              product.unit              || 'm²',
       stock:             product.stock             ?? '',
       category_id:       product.category_id       || '',
@@ -268,6 +286,7 @@ export default function AdminProducts() {
     setShowModal(false)
     setEditProduct(null)
     setSavedProductId(null)
+    setPendingTypes([])
     setActiveTab('info')
     invalidateCache('products:')
     fetchProducts(search)
@@ -275,6 +294,10 @@ export default function AdminProducts() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
+    if (name === 'price') {
+      setForm(f => ({ ...f, price: fmtRupiah(value) }))
+      return
+    }
     const v = type === 'checkbox' ? checked : value
     setForm(f => ({
       ...f,
@@ -283,28 +306,52 @@ export default function AdminProducts() {
     }))
   }
 
-  /* ── Save product info ── */
+  /* ── Save product info (+ pending types untuk produk baru) ── */
   const handleSaveInfo = async (e) => {
     e.preventDefault()
     setSaving(true)
     try {
+      const priceNum = parseRupiah(form.price)
       const payload = {
         ...form,
-        // Sanitasi di sini juga sebagai lapisan kedua
         category_id:   form.category_id   || null,
         collection_id: form.collection_id || null,
-        price:         form.price !== '' ? parseFloat(form.price) : null,
-        stock:         form.stock !== '' ? parseInt(form.stock)   : null,
+        price:         priceNum || null,
+        stock:         form.stock !== '' ? parseInt(form.stock) : null,
         features:      form.features ? form.features.split('\n').filter(Boolean) : [],
       }
       if (editProduct) payload.id = editProduct.id
 
       const saved = await productService.upsertProduct(payload)
       setSavedProductId(saved.id)
-      if (!editProduct) setEditProduct(saved)
 
-      toast.success(editProduct ? 'Produk diperbarui' : 'Produk disimpan — isi tipe produk sekarang')
-      if (!editProduct) setActiveTab('types')
+      // Jika produk baru, simpan semua tipe yang sudah diisi di tab Tipe
+      if (!editProduct) {
+        for (const t of pendingTypes) {
+          const { _tempId, _imageFile, ...typeData } = t
+          const upserted = await productTypeService.upsert({ ...typeData, product_id: saved.id })
+          // Upload foto pending tipe jika ada File
+          if (_imageFile && upserted?.id) {
+            try {
+              const ext  = _imageFile.name.split('.').pop().toLowerCase()
+              const path = `product-types/${upserted.id}/${Date.now()}.${ext}`
+              const { error: upErr } = await supabase.storage
+                .from('glory8-assets')
+                .upload(path, _imageFile, { upsert: true, cacheControl: '3600' })
+              if (!upErr) {
+                const { data: { publicUrl } } = supabase.storage.from('glory8-assets').getPublicUrl(path)
+                await supabase.from('product_types').update({ image_url: publicUrl }).eq('id', upserted.id)
+              }
+            } catch (_) { /* foto gagal upload, tapi tipe tetap tersimpan */ }
+          }
+        }
+        setPendingTypes([])
+        setEditProduct(saved)
+        toast.success('Produk & tipe berhasil disimpan — upload foto sekarang')
+        setActiveTab('types')
+      } else {
+        toast.success('Produk diperbarui')
+      }
     } catch (err) {
       toast.error(err.message)
     } finally {
@@ -362,82 +409,90 @@ export default function AdminProducts() {
       ) : products.length === 0 ? (
         <EmptyState icon={ImageIcon} title="Belum ada produk" description="Tambahkan produk pertama Anda"
           action={<button onClick={openCreate} className="flex items-center gap-2 px-4 py-2.5 bg-[#1C1917] text-white text-[12px] hover:bg-[#C9A455] transition-colors" style={{ fontFamily: F }}><Plus size={14} />Tambah Produk</button>} />
-      ) : (
-        <div className="bg-white border border-[#E8E4DC] overflow-x-auto">
-          <table className="w-full min-w-[640px]">
-            <thead>
-              <tr className="border-b border-[#E8E4DC] bg-[#FAF8F4]">
-                {['Produk', 'Kategori', 'Harga', 'Stok', 'Status', ''].map(h => (
-                  <th key={h} className="px-4 py-3 text-left text-[10px] font-semibold text-[#9C9890] uppercase tracking-widest" style={{ fontFamily: F }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#F0EDE6]">
-              {products.map(product => {
-                const img = getPrimaryImg(product)
-                return (
-                  <tr key={product.id} className="hover:bg-[#FAF8F4] transition-colors">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-[#F5F2EC] flex-shrink-0 overflow-hidden border border-[#E8E4DC]">
-                          {img ? (
-                            <img src={img} alt={product.name} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <ImageIcon size={13} strokeWidth={1} className="text-[#C4BEB5]" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-[#1C1917] text-[13px] font-medium truncate" style={{ fontFamily: F }}>{product.name}</p>
-                          <p className="text-[#C4BEB5] text-[10px] font-mono">{product.slug}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-[#9C9890] text-[13px]" style={{ fontFamily: F }}>
-                      {product.product_categories?.name || '—'}
-                    </td>
-                    <td className="px-4 py-3 text-[#1C1917] text-[13px] font-medium whitespace-nowrap" style={{ fontFamily: F }}>
-                      {formatCurrency(product.price)}
-                    </td>
-                    <td className="px-4 py-3 text-[#9C9890] text-[13px]" style={{ fontFamily: F }}>
-                      {product.stock ?? '—'}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 ${product.is_active ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-[#9C9890]'}`} style={{ fontFamily: F }}>
-                        {product.is_active ? <Eye size={9} /> : <EyeOff size={9} />}
-                        {product.is_active ? 'Aktif' : 'Hidden'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-1 justify-end">
-                        <button onClick={() => openEdit(product)} className="p-1.5 text-[#9C9890] hover:text-[#C9A455] transition-colors">
-                          <Edit2 size={13} strokeWidth={1.5} />
-                        </button>
-                        <button onClick={() => handleDelete(product)} className="p-1.5 text-[#9C9890] hover:text-red-500 transition-colors">
-                          <Trash2 size={13} strokeWidth={1.5} />
-                        </button>
-                      </div>
-                    </td>
+      ) : (() => {
+        const totalPages = Math.ceil(products.length / PER_PAGE)
+        const paginated  = products.slice((page - 1) * PER_PAGE, page * PER_PAGE)
+        return (
+          <>
+            <div className="bg-white border border-[#E8E4DC] overflow-x-auto">
+              <table className="w-full min-w-[640px]">
+                <thead>
+                  <tr className="border-b border-[#E8E4DC] bg-[#FAF8F4]">
+                    {['Produk', 'Kategori', 'Harga', 'Stok', 'Status', ''].map(h => (
+                      <th key={h} className="px-4 py-3 text-left text-[10px] font-semibold text-[#9C9890] uppercase tracking-widest" style={{ fontFamily: F }}>{h}</th>
+                    ))}
                   </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+                </thead>
+                <tbody className="divide-y divide-[#F0EDE6]">
+                  {paginated.map(product => {
+                    const img = getPrimaryImg(product)
+                    return (
+                      <tr key={product.id} className="hover:bg-[#FAF8F4] transition-colors">
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-[#F5F2EC] flex-shrink-0 overflow-hidden border border-[#E8E4DC]">
+                              {img ? (
+                                <img src={img} alt={product.name} className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <ImageIcon size={13} strokeWidth={1} className="text-[#C4BEB5]" />
+                                </div>
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-[#1C1917] text-[13px] font-medium truncate" style={{ fontFamily: F }}>{product.name}</p>
+                              <p className="text-[#C4BEB5] text-[10px] font-mono">{product.slug}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-[#9C9890] text-[13px]" style={{ fontFamily: F }}>
+                          {product.product_categories?.name || '—'}
+                        </td>
+                        <td className="px-4 py-3 text-[#1C1917] text-[13px] font-medium whitespace-nowrap" style={{ fontFamily: F }}>
+                          {formatCurrency(product.price)}
+                        </td>
+                        <td className="px-4 py-3 text-[#9C9890] text-[13px]" style={{ fontFamily: F }}>
+                          {product.stock ?? '—'}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 ${product.is_active ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-[#9C9890]'}`} style={{ fontFamily: F }}>
+                            {product.is_active ? <Eye size={9} /> : <EyeOff size={9} />}
+                            {product.is_active ? 'Aktif' : 'Hidden'}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-1 justify-end">
+                            <button onClick={() => openEdit(product)} className="p-1.5 text-[#9C9890] hover:text-[#C9A455] transition-colors">
+                              <Edit2 size={13} strokeWidth={1.5} />
+                            </button>
+                            <button onClick={() => handleDelete(product)} className="p-1.5 text-[#9C9890] hover:text-red-500 transition-colors">
+                              <Trash2 size={13} strokeWidth={1.5} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <Pagination page={page} totalPages={totalPages} onPageChange={setPage}
+              total={products.length} perPage={PER_PAGE} />
+          </>
+        )
+      })()}
 
       {/* ── Product Modal ── */}
       <Modal isOpen={showModal} onClose={closeModal} title={editProduct ? `Edit: ${editProduct.name}` : 'Tambah Produk Baru'} size="lg">
         {/* Tabs */}
         <div className="flex border-b border-[#E8E4DC] mb-5 -mt-1">
           {[
-            { key: 'info',     label: 'Informasi Produk' },
-            { key: 'types',    label: savedProductId ? 'Tipe Produk' : 'Tipe (simpan dulu)' },
-            { key: 'photos',   label: savedProductId ? 'Foto Produk' : 'Foto (simpan dulu)' },
+            { key: 'info',   label: 'Informasi Produk' },
+            { key: 'types',  label: 'Tipe Produk' },
+            { key: 'photos', label: savedProductId ? 'Foto Produk' : 'Foto (simpan dulu)' },
           ].map(tab => (
             <button key={tab.key} type="button"
-              disabled={tab.key !== 'info' && !savedProductId}
+              disabled={tab.key === 'photos' && !savedProductId}
               onClick={() => setActiveTab(tab.key)}
               className={`px-5 py-2.5 text-[12px] tracking-[0.04em] border-b-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
                 activeTab === tab.key
@@ -446,6 +501,12 @@ export default function AdminProducts() {
               }`}
               style={{ fontFamily: F }}>
               {tab.label}
+              {/* Badge jumlah pending types di tab Tipe sebelum disimpan */}
+              {tab.key === 'types' && !savedProductId && pendingTypes.length > 0 && (
+                <span className="ml-1.5 px-1.5 py-0.5 bg-[#C9A455] text-white text-[9px] rounded-full">
+                  {pendingTypes.length}
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -467,7 +528,23 @@ export default function AdminProducts() {
 
               <div>
                 <Label>Harga (Rp)</Label>
-                <Input name="price" type="number" min="0" value={form.price} onChange={handleChange} placeholder="0" />
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9C9890] text-[13px] select-none pointer-events-none" style={{ fontFamily: F }}>Rp</span>
+                  <input
+                    name="price"
+                    inputMode="numeric"
+                    value={form.price}
+                    onChange={handleChange}
+                    placeholder="0"
+                    className="w-full pl-9 pr-3 py-2.5 border border-[#E8E4DC] text-[13px] text-[#1C1917] bg-white focus:outline-none focus:border-[#C9A455] transition-colors"
+                    style={{ fontFamily: F }}
+                  />
+                </div>
+                {form.price && (
+                  <p className="text-[10px] text-[#9C9890] mt-0.5 px-1" style={{ fontFamily: F }}>
+                    Rp {form.price}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -562,7 +639,7 @@ export default function AdminProducts() {
                 className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#1C1917] text-white text-[12px] hover:bg-[#C9A455] transition-colors disabled:opacity-50"
                 style={{ fontFamily: F }}>
                 {saving && <Loader2 size={13} className="animate-spin" />}
-                {saving ? 'Menyimpan...' : editProduct ? 'Perbarui Produk' : 'Simpan & Lanjut ke Foto'}
+                {saving ? 'Menyimpan...' : editProduct ? 'Perbarui Produk' : 'Simpan Produk & Tipe'}
               </button>
             </div>
           </form>
@@ -588,18 +665,24 @@ export default function AdminProducts() {
         {/* Tab: Tipe Produk */}
         {activeTab === 'types' && (
           <div className="space-y-4">
-            <ProductTypesManager productId={savedProductId} />
+            <ProductTypesManager
+              productId={savedProductId}
+              pendingTypes={pendingTypes}
+              onPendingChange={setPendingTypes}
+            />
             <div className="pt-3 border-t border-[#E8E4DC] flex gap-3">
               <button type="button" onClick={closeModal}
                 className="flex-1 px-4 py-2.5 border border-[#E8E4DC] text-[12px] text-[#6B7280] hover:border-[#1C1917] hover:text-[#1C1917] transition-colors"
                 style={{ fontFamily: F }}>
                 Selesai
               </button>
-              <button type="button" onClick={() => setActiveTab('photos')}
-                className="flex-1 px-4 py-2.5 bg-[#1C1917] text-white text-[12px] hover:bg-[#C9A455] transition-colors"
-                style={{ fontFamily: F }}>
-                Lanjut ke Foto →
-              </button>
+              {savedProductId && (
+                <button type="button" onClick={() => setActiveTab('photos')}
+                  className="flex-1 px-4 py-2.5 bg-[#1C1917] text-white text-[12px] hover:bg-[#C9A455] transition-colors"
+                  style={{ fontFamily: F }}>
+                  Lanjut ke Foto →
+                </button>
+              )}
             </div>
           </div>
         )}

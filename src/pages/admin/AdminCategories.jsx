@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { slugify } from '@/lib/utils'
 import Modal from '@/components/ui/Modal'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
+import Pagination from '@/components/ui/Pagination'
 import toast from 'react-hot-toast'
 
 const EMPTY = { name: '', slug: '', description: '', is_active: true, sort_order: 0 }
@@ -15,6 +16,8 @@ export default function AdminCategories() {
   const [edit, setEdit] = useState(null)
   const [form, setForm] = useState(EMPTY)
   const [saving, setSaving] = useState(false)
+  const [page, setPage] = useState(1)
+  const PER_PAGE = 10
 
   const openCreate = () => { setEdit(null); setForm(EMPTY); setShowModal(true) }
   const openEdit = (cat) => {
@@ -71,39 +74,47 @@ export default function AdminCategories() {
         </button>
       </div>
 
-      {loading ? <LoadingSpinner /> : (
-        <div className="bg-white border border-[#E8E4DC] overflow-hidden shadow-luxury">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-[#E8E4DC] bg-[#FAF8F4]">
-                {['Nama', 'Slug', 'Urutan', 'Status', ''].map((h) => (
-                  <th key={h} className="px-4 py-3 text-left font-body text-[10px] font-semibold text-[#9C9890] uppercase tracking-widest">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#F0EDE6]">
-              {categories.map((cat) => (
-                <tr key={cat.id} className="hover:bg-[#FAF8F4]">
-                  <td className="px-4 py-3 font-body text-sm font-medium text-[#1C1917]">{cat.name}</td>
-                  <td className="px-4 py-3 font-mono text-xs text-[#9C9890]">{cat.slug}</td>
-                  <td className="px-4 py-3 font-body text-sm text-[#6B7280]">{cat.sort_order}</td>
-                  <td className="px-4 py-3">
-                    <span className={`text-[10px] font-body font-semibold px-2 py-0.5 ${cat.is_active ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-[#9C9890]'}`}>
-                      {cat.is_active ? 'Aktif' : 'Hidden'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2 justify-end">
-                      <button onClick={() => openEdit(cat)} className="p-1.5 text-[#9C9890] hover:text-[#C9A455] transition-colors"><Edit2 size={14} strokeWidth={1.5} /></button>
-                      <button onClick={() => handleDelete(cat)} className="p-1.5 text-[#9C9890] hover:text-red-500 transition-colors"><Trash2 size={14} strokeWidth={1.5} /></button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      {loading ? <LoadingSpinner /> : (() => {
+        const totalPages = Math.ceil(categories.length / PER_PAGE)
+        const paginated  = categories.slice((page - 1) * PER_PAGE, page * PER_PAGE)
+        return (
+          <>
+            <div className="bg-white border border-[#E8E4DC] overflow-hidden shadow-luxury">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-[#E8E4DC] bg-[#FAF8F4]">
+                    {['Nama', 'Slug', 'Urutan', 'Status', ''].map((h) => (
+                      <th key={h} className="px-4 py-3 text-left font-body text-[10px] font-semibold text-[#9C9890] uppercase tracking-widest">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#F0EDE6]">
+                  {paginated.map((cat) => (
+                    <tr key={cat.id} className="hover:bg-[#FAF8F4]">
+                      <td className="px-4 py-3 font-body text-sm font-medium text-[#1C1917]">{cat.name}</td>
+                      <td className="px-4 py-3 font-mono text-xs text-[#9C9890]">{cat.slug}</td>
+                      <td className="px-4 py-3 font-body text-sm text-[#6B7280]">{cat.sort_order}</td>
+                      <td className="px-4 py-3">
+                        <span className={`text-[10px] font-body font-semibold px-2 py-0.5 ${cat.is_active ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-[#9C9890]'}`}>
+                          {cat.is_active ? 'Aktif' : 'Hidden'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2 justify-end">
+                          <button onClick={() => openEdit(cat)} className="p-1.5 text-[#9C9890] hover:text-[#C9A455] transition-colors"><Edit2 size={14} strokeWidth={1.5} /></button>
+                          <button onClick={() => handleDelete(cat)} className="p-1.5 text-[#9C9890] hover:text-red-500 transition-colors"><Trash2 size={14} strokeWidth={1.5} /></button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <Pagination page={page} totalPages={totalPages} onPageChange={setPage}
+              total={categories.length} perPage={PER_PAGE} />
+          </>
+        )
+      })()}
 
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={edit ? 'Edit Kategori' : 'Tambah Kategori'} size="sm">
         <form onSubmit={handleSave} className="space-y-4">

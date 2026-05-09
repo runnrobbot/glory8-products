@@ -6,6 +6,7 @@ import { formatCurrency, formatDate, ORDER_STATUSES } from '@/lib/utils'
 import Modal from '@/components/ui/Modal'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 import EmptyState from '@/components/ui/EmptyState'
+import Pagination from '@/components/ui/Pagination'
 import toast from 'react-hot-toast'
 
 const STATUS_COLORS = {
@@ -21,6 +22,8 @@ export default function AdminOrders() {
   const { data: orders, loading, refetch } = useOrders()
   const { update, loading: updating } = useUpdateOrderStatus()
   const [selectedOrder, setSelectedOrder] = useState(null)
+  const [page, setPage] = useState(1)
+  const PER_PAGE = 15
 
   const handleUpdateStatus = async (id, status) => {
     try {
@@ -52,39 +55,43 @@ export default function AdminOrders() {
         <LoadingSpinner />
       ) : orders.length === 0 ? (
         <EmptyState title="Belum ada pesanan" />
-      ) : (
-        <div className="bg-white border border-[#E8E4DC] overflow-hidden shadow-luxury">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[700px]">
-              <thead>
-                <tr className="border-b border-[#E8E4DC] bg-[#FAF8F4]">
-                  {['ID', 'Pelanggan', 'Wilayah', 'Total', 'Status', 'Tanggal', ''].map((h) => (
-                    <th key={h} className="px-4 py-3 text-left font-body text-[10px] font-semibold text-[#9C9890] uppercase tracking-widest">
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#F0EDE6]">
-                {orders.map((order) => (
-                  <motion.tr
-                    key={order.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="hover:bg-[#FAF8F4]"
-                  >
-                    <td className="px-4 py-3">
-                      <span className="font-mono text-xs text-[#9C9890]">#{order.id.slice(-6).toUpperCase()}</span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <p className="font-body text-sm text-[#1C1917]">{order.customer_name || '-'}</p>
-                      <p className="font-body text-xs text-[#9C9890]">{order.customer_phone || ''}</p>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="font-body text-xs text-[#6B7280] capitalize">{order.admin_region || '-'}</span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="font-body text-sm font-medium text-[#1C1917]">{formatCurrency(order.total)}</span>
+      ) : (() => {
+        const totalPages = Math.ceil(orders.length / PER_PAGE)
+        const paginated  = orders.slice((page - 1) * PER_PAGE, page * PER_PAGE)
+        return (
+          <>
+            <div className="bg-white border border-[#E8E4DC] overflow-hidden shadow-luxury">
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[700px]">
+                  <thead>
+                    <tr className="border-b border-[#E8E4DC] bg-[#FAF8F4]">
+                      {['ID', 'Pelanggan', 'Wilayah', 'Total', 'Status', 'Tanggal', ''].map((h) => (
+                        <th key={h} className="px-4 py-3 text-left font-body text-[10px] font-semibold text-[#9C9890] uppercase tracking-widest">
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#F0EDE6]">
+                    {paginated.map((order) => (
+                      <motion.tr
+                        key={order.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="hover:bg-[#FAF8F4]"
+                      >
+                        <td className="px-4 py-3">
+                          <span className="font-mono text-xs text-[#9C9890]">#{order.id.slice(-6).toUpperCase()}</span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <p className="font-body text-sm text-[#1C1917]">{order.customer_name || '-'}</p>
+                          <p className="font-body text-xs text-[#9C9890]">{order.customer_phone || ''}</p>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="font-body text-xs text-[#6B7280] capitalize">{order.admin_region || '-'}</span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="font-body text-sm font-medium text-[#1C1917]">{formatCurrency(order.total)}</span>
                     </td>
                     <td className="px-4 py-3">
                       <span className={`inline-block text-[10px] font-body font-semibold px-2 py-1 border ${STATUS_COLORS[order.status] || 'bg-gray-50 text-[#6B7280]'}`}>
@@ -102,13 +109,17 @@ export default function AdminOrders() {
                         <Eye size={14} strokeWidth={1.5} />
                       </button>
                     </td>
-                  </motion.tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+                      </motion.tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <Pagination page={page} totalPages={totalPages} onPageChange={setPage}
+              total={orders.length} perPage={PER_PAGE} />
+          </>
+        )
+      })()}
 
       {/* Order Detail Modal */}
       <Modal

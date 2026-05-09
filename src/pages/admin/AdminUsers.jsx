@@ -6,6 +6,7 @@ import { formatDate } from '@/lib/utils'
 import Modal from '@/components/ui/Modal'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 import EmptyState from '@/components/ui/EmptyState'
+import Pagination from '@/components/ui/Pagination'
 import toast from 'react-hot-toast'
 
 const EMPTY_FORM = { full_name: '', email: '', phone: '', password: '', role_id: '', is_active: true }
@@ -193,7 +194,7 @@ export default function AdminUsers() {
           type="text"
           placeholder="Cari nama atau email..."
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={e => { setSearch(e.target.value); setPage(1) }}
           className="w-full max-w-xs px-4 py-2.5 border border-[#E8E4DC] text-[13px] focus:outline-none focus:border-[#C9A455] bg-white"
           style={{ fontFamily: 'Inter, sans-serif' }}
         />
@@ -202,67 +203,75 @@ export default function AdminUsers() {
       {/* Table */}
       {loading ? <LoadingSpinner /> : filtered.length === 0 ? (
         <EmptyState icon={Users} title="Belum ada pengguna" description="Klik 'Tambah Pengguna' untuk menambah anggota tim" />
-      ) : (
-        <div className="bg-white border border-[#E8E4DC] overflow-x-auto shadow-luxury">
-          <table className="w-full min-w-[660px]">
-            <thead>
-              <tr className="border-b border-[#E8E4DC] bg-[#FAF8F4]">
-                {['Pengguna', 'Email', 'Telepon', 'Role', 'Bergabung', 'Status', ''].map(h => (
-                  <th key={h} className="px-4 py-3 text-left text-[10px] font-semibold text-[#9C9890] uppercase tracking-widest" style={{ fontFamily: 'Inter, sans-serif' }}>
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#F0EDE6]">
-              {filtered.map(user => (
-                <tr key={user.id} className="hover:bg-[#FAF8F4] transition-colors">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-7 h-7 bg-[#FAF8F4] border border-[#E8E4DC] flex items-center justify-center flex-shrink-0">
-                        <span className="text-[#C9A455] text-[11px] font-semibold" style={{ fontFamily: 'Inter, sans-serif' }}>
-                          {(user.full_name || user.email || 'U')[0].toUpperCase()}
+      ) : (() => {
+        const totalPages = Math.ceil(filtered.length / PER_PAGE)
+        const paginated  = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE)
+        return (
+          <>
+            <div className="bg-white border border-[#E8E4DC] overflow-x-auto shadow-luxury">
+              <table className="w-full min-w-[660px]">
+                <thead>
+                  <tr className="border-b border-[#E8E4DC] bg-[#FAF8F4]">
+                    {['Pengguna', 'Email', 'Telepon', 'Role', 'Bergabung', 'Status', ''].map(h => (
+                      <th key={h} className="px-4 py-3 text-left text-[10px] font-semibold text-[#9C9890] uppercase tracking-widest" style={{ fontFamily: 'Inter, sans-serif' }}>
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#F0EDE6]">
+                  {paginated.map(user => (
+                    <tr key={user.id} className="hover:bg-[#FAF8F4] transition-colors">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-7 h-7 bg-[#FAF8F4] border border-[#E8E4DC] flex items-center justify-center flex-shrink-0">
+                            <span className="text-[#C9A455] text-[11px] font-semibold" style={{ fontFamily: 'Inter, sans-serif' }}>
+                              {(user.full_name || user.email || 'U')[0].toUpperCase()}
+                            </span>
+                          </div>
+                          <span className="text-[#1C1917] text-[13px]" style={{ fontFamily: 'Inter, sans-serif' }}>
+                            {user.full_name || <span className="text-[#C4BEB5] italic text-[12px]">Tanpa nama</span>}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-[#9C9890] text-[13px]" style={{ fontFamily: 'Inter, sans-serif' }}>{user.email || '—'}</td>
+                      <td className="px-4 py-3 text-[#9C9890] text-[13px]" style={{ fontFamily: 'Inter, sans-serif' }}>{user.phone || '—'}</td>
+                      <td className="px-4 py-3">
+                        <span className={`text-[10px] px-2 py-0.5 whitespace-nowrap ${ROLE_STYLE[user.roles?.name] || 'bg-gray-100 text-gray-500'}`} style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>
+                          {ROLE_LABEL[user.roles?.name] || '—'}
                         </span>
-                      </div>
-                      <span className="text-[#1C1917] text-[13px]" style={{ fontFamily: 'Inter, sans-serif' }}>
-                        {user.full_name || <span className="text-[#C4BEB5] italic text-[12px]">Tanpa nama</span>}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-[#9C9890] text-[13px]" style={{ fontFamily: 'Inter, sans-serif' }}>{user.email || '—'}</td>
-                  <td className="px-4 py-3 text-[#9C9890] text-[13px]" style={{ fontFamily: 'Inter, sans-serif' }}>{user.phone || '—'}</td>
-                  <td className="px-4 py-3">
-                    <span className={`text-[10px] px-2 py-0.5 whitespace-nowrap ${ROLE_STYLE[user.roles?.name] || 'bg-gray-100 text-gray-500'}`} style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>
-                      {ROLE_LABEL[user.roles?.name] || '—'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-[#9C9890] text-[12px] whitespace-nowrap" style={{ fontFamily: 'Inter, sans-serif' }}>{formatDate(user.created_at)}</td>
-                  <td className="px-4 py-3">
-                    <span className={`text-[10px] px-2 py-0.5 ${user.is_active !== false ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'}`} style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>
-                      {user.is_active !== false ? 'Aktif' : 'Nonaktif'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    {canManage && (
-                      <div className="flex items-center gap-1 justify-end">
-                        <button onClick={() => toggleActive(user)} className="p-1.5 text-[#9C9890] hover:text-blue-500 transition-colors" title={user.is_active ? 'Nonaktifkan' : 'Aktifkan'}>
-                          {user.is_active !== false ? <EyeOff size={13} strokeWidth={1.5} /> : <Eye size={13} strokeWidth={1.5} />}
-                        </button>
-                        <button onClick={() => openEdit(user)} className="p-1.5 text-[#9C9890] hover:text-[#C9A455] transition-colors">
-                          <Edit2 size={13} strokeWidth={1.5} />
-                        </button>
-                        <button onClick={() => handleDelete(user)} className="p-1.5 text-[#9C9890] hover:text-red-500 transition-colors">
-                          <Trash2 size={13} strokeWidth={1.5} />
-                        </button>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+                      </td>
+                      <td className="px-4 py-3 text-[#9C9890] text-[12px] whitespace-nowrap" style={{ fontFamily: 'Inter, sans-serif' }}>{formatDate(user.created_at)}</td>
+                      <td className="px-4 py-3">
+                        <span className={`text-[10px] px-2 py-0.5 ${user.is_active !== false ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'}`} style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>
+                          {user.is_active !== false ? 'Aktif' : 'Nonaktif'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        {canManage && (
+                          <div className="flex items-center gap-1 justify-end">
+                            <button onClick={() => toggleActive(user)} className="p-1.5 text-[#9C9890] hover:text-blue-500 transition-colors" title={user.is_active ? 'Nonaktifkan' : 'Aktifkan'}>
+                              {user.is_active !== false ? <EyeOff size={13} strokeWidth={1.5} /> : <Eye size={13} strokeWidth={1.5} />}
+                            </button>
+                            <button onClick={() => openEdit(user)} className="p-1.5 text-[#9C9890] hover:text-[#C9A455] transition-colors">
+                              <Edit2 size={13} strokeWidth={1.5} />
+                            </button>
+                            <button onClick={() => handleDelete(user)} className="p-1.5 text-[#9C9890] hover:text-red-500 transition-colors">
+                              <Trash2 size={13} strokeWidth={1.5} />
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <Pagination page={page} totalPages={totalPages} onPageChange={setPage}
+              total={filtered.length} perPage={PER_PAGE} />
+          </>
+        )
+      })()}
 
       {/* Modal */}
       <Modal

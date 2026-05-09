@@ -11,4 +11,3 @@ supabase/migrations/001_initial.schema.sql
 supabase/migrations/002_fix_rls_and_storage.sql
 supabase/migrations/003_livechat.sql
 supabase/migrations/004_product_types.sql
-supabase/migrations/005_product_types_extend.sql

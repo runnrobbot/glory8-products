@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase'
 import { slugify } from '@/lib/utils'
 import Modal from '@/components/ui/Modal'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
+import Pagination from '@/components/ui/Pagination'
 import EmptyState from '@/components/ui/EmptyState'
 import toast from 'react-hot-toast'
 
@@ -16,6 +17,8 @@ export default function AdminCollections() {
   const [edit, setEdit] = useState(null)
   const [form, setForm] = useState(EMPTY)
   const [saving, setSaving] = useState(false)
+  const [page, setPage] = useState(1)
+  const PER_PAGE = 10
 
   useEffect(() => { fetchCollections() }, [])
 
@@ -78,40 +81,48 @@ export default function AdminCollections() {
 
       {loading ? <LoadingSpinner /> : collections.length === 0 ? (
         <EmptyState icon={Layers} title="Belum ada koleksi" description="Buat koleksi untuk mengelompokkan produk secara tematik" />
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {collections.map(col => (
-            <div key={col.id} className="bg-white border border-[#E8E4DC] shadow-luxury overflow-hidden group">
-              {col.banner_url ? (
-                <div className="h-32 overflow-hidden">
-                  <img src={col.banner_url} alt={col.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                </div>
-              ) : (
-                <div className="h-32 bg-[#FAF8F4] flex items-center justify-center">
-                  <Layers size={28} className="text-[#C4BEB5]" strokeWidth={1} />
-                </div>
-              )}
-              <div className="p-4">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <p className="font-display text-base font-medium text-[#1C1917] truncate">{col.name}</p>
-                    <p className="font-mono text-[10px] text-[#9C9890] mt-0.5">{col.slug}</p>
-                    {col.description && <p className="font-body text-xs text-[#9C9890] mt-1.5 line-clamp-2">{col.description}</p>}
+      ) : (() => {
+        const totalPages = Math.ceil(collections.length / PER_PAGE)
+        const paginated  = collections.slice((page - 1) * PER_PAGE, page * PER_PAGE)
+        return (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {paginated.map(col => (
+                <div key={col.id} className="bg-white border border-[#E8E4DC] shadow-luxury overflow-hidden group">
+                  {col.banner_url ? (
+                    <div className="h-32 overflow-hidden">
+                      <img src={col.banner_url} alt={col.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    </div>
+                  ) : (
+                    <div className="h-32 bg-[#FAF8F4] flex items-center justify-center">
+                      <Layers size={28} className="text-[#C4BEB5]" strokeWidth={1} />
+                    </div>
+                  )}
+                  <div className="p-4">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="font-display text-base font-medium text-[#1C1917] truncate">{col.name}</p>
+                        <p className="font-mono text-[10px] text-[#9C9890] mt-0.5">{col.slug}</p>
+                        {col.description && <p className="font-body text-xs text-[#9C9890] mt-1.5 line-clamp-2">{col.description}</p>}
+                      </div>
+                      <span className={`text-[10px] font-body font-semibold px-2 py-0.5 flex-shrink-0 ${col.is_active ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-[#9C9890]'}`}>
+                        {col.is_active ? 'Aktif' : 'Hidden'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1 mt-3 pt-3 border-t border-[#F0EDE6]">
+                      <span className="font-body text-[10px] text-[#9C9890] flex-1">Urutan: {col.sort_order}</span>
+                      <button onClick={() => openEdit(col)} className="p-1.5 text-[#9C9890] hover:text-[#C9A455] transition-colors"><Edit2 size={13} strokeWidth={1.5} /></button>
+                      <button onClick={() => handleDelete(col)} className="p-1.5 text-[#9C9890] hover:text-red-500 transition-colors"><Trash2 size={13} strokeWidth={1.5} /></button>
+                    </div>
                   </div>
-                  <span className={`text-[10px] font-body font-semibold px-2 py-0.5 flex-shrink-0 ${col.is_active ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-[#9C9890]'}`}>
-                    {col.is_active ? 'Aktif' : 'Hidden'}
-                  </span>
                 </div>
-                <div className="flex items-center gap-1 mt-3 pt-3 border-t border-[#F0EDE6]">
-                  <span className="font-body text-[10px] text-[#9C9890] flex-1">Urutan: {col.sort_order}</span>
-                  <button onClick={() => openEdit(col)} className="p-1.5 text-[#9C9890] hover:text-[#C9A455] transition-colors"><Edit2 size={13} strokeWidth={1.5} /></button>
-                  <button onClick={() => handleDelete(col)} className="p-1.5 text-[#9C9890] hover:text-red-500 transition-colors"><Trash2 size={13} strokeWidth={1.5} /></button>
-                </div>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
-      )}
+            <Pagination page={page} totalPages={totalPages} onPageChange={setPage}
+              total={collections.length} perPage={PER_PAGE} />
+          </>
+        )
+      })()}
 
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={edit ? 'Edit Koleksi' : 'Tambah Koleksi'} size="sm">
         <form onSubmit={handleSave} className="space-y-4">
