@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { productService } from '@/services/productService'
 
-// ── In-memory cache (module-level, persists across renders) ────
 const cache = new Map()
 const CACHE_TTL = 30_000
 
@@ -20,24 +19,19 @@ export function invalidateCache(prefix) {
   }
 }
 
-/**
- * useFetch — fetch sekali, cache, tidak double-fetch.
- * Prinsip: satu useEffect, satu path, cancel via flag.
- */
+
 function useFetch(key, fetcher) {
   const [state, setState] = useState(() => {
     const cached = getCached(key)
     return { data: cached ?? null, loading: !cached, error: null }
   })
 
-  // Simpan fetcher terbaru di ref — tidak jadi dependency effect
   const fetcherRef = useRef(fetcher)
   fetcherRef.current = fetcher
 
   const keyRef = useRef(key)
 
   useEffect(() => {
-    // Key berubah — reset state jika berbeda
     if (keyRef.current !== key) {
       keyRef.current = key
     }
@@ -61,7 +55,7 @@ function useFetch(key, fetcher) {
     })
 
     return () => { cancelled = true }
-  }, [key]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [key]) 
 
   const refetch = useCallback(() => {
     cache.delete(key)
@@ -81,7 +75,6 @@ function useFetch(key, fetcher) {
   return { ...state, refetch }
 }
 
-// ── useProducts — dengan filter & debounced search ─────────────
 export function useProducts(filters = {}) {
   const filtersKey   = JSON.stringify(filters)
   const filtersRef   = useRef(filters)
@@ -119,7 +112,7 @@ export function useProducts(filters = {}) {
     })
 
     return () => { cancelled = true }
-  }, [filtersKey]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [filtersKey]) 
 
   const refetch = useCallback(() => {
     invalidateCache('products:')
@@ -140,7 +133,6 @@ export function useProducts(filters = {}) {
   return { ...state, refetch }
 }
 
-// ── Specific hooks ─────────────────────────────────────────────
 export function useProduct(slug) {
   const { data, loading, error, refetch } = useFetch(
     `product:${slug}`,

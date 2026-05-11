@@ -47,7 +47,7 @@ export function useOrders(filters = {}) {
     } finally {
       if (mountedRef.current) setLoading(false)
     }
-  }, [filtersKey]) // eslint-disable-line
+  }, [filtersKey]) 
 
   useEffect(() => { fetchOrders() }, [fetchOrders])
 

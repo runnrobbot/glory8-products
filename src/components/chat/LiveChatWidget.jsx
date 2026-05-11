@@ -18,7 +18,6 @@ const STATUS_LABEL = {
   closed:      { text: 'Ditutup',       color: '#9C9890' },
 }
 
-// ── Form awal pengunjung ──────────────────────────────────────
 function StartChatForm({ onStart }) {
   const [form, setForm]     = useState({ name: '', email: '', phone: '', subject: '' })
   const [loading, setLoading] = useState(false)
@@ -97,7 +96,6 @@ function StartChatForm({ onStart }) {
   )
 }
 
-// ── Bubble pesan ─────────────────────────────────────────────
 function MessageBubble({ msg, visitorName }) {
   const isSystem  = msg.sender_type === 'system'
   const isVisitor = msg.sender_type === 'visitor'
@@ -141,7 +139,6 @@ function MessageBubble({ msg, visitorName }) {
   )
 }
 
-// ── Main Chat Window ──────────────────────────────────────────
 export default function LiveChatWidget() {
   const [open, setOpen]           = useState(false)
   const [sessionId, setSessionId] = useState(() => localStorage.getItem(SESSION_KEY))
@@ -154,12 +151,10 @@ export default function LiveChatWidget() {
   const bottomRef = useRef(null)
   const unsubRef  = useRef(null)
 
-  // Auto-scroll
   const scrollBottom = useCallback(() => {
     setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
   }, [])
 
-  // Load session & messages jika sudah ada sessionId
   useEffect(() => {
     if (!sessionId) return
     let cancelled = false
@@ -177,7 +172,6 @@ export default function LiveChatWidget() {
       })
       .catch(() => {
         if (cancelled) return
-        // Session tidak valid / sudah dihapus — reset
         localStorage.removeItem(SESSION_KEY)
         setSessionId(null)
         setSession(null)
@@ -188,16 +182,13 @@ export default function LiveChatWidget() {
     return () => { cancelled = true }
   }, [sessionId, scrollBottom])
 
-  // Realtime subscribe
   useEffect(() => {
     if (!sessionId) return
 
-    // Unsubscribe lama dulu
     if (unsubRef.current) { unsubRef.current(); unsubRef.current = null }
 
     unsubRef.current = subscribeToMessages(sessionId, (newMsg) => {
       setMessages(prev => {
-        // Deduplicate: hindari pesan duplikat
         if (prev.some(m => m.id === newMsg.id)) return prev
         return [...prev, newMsg]
       })
@@ -209,10 +200,9 @@ export default function LiveChatWidget() {
     }
   }, [sessionId, scrollBottom])
 
-  // Update session status via realtime
   useEffect(() => {
     if (!sessionId) return
-    // Poll session status setiap 10 detik (lightweight)
+
     const interval = setInterval(async () => {
       try {
         const sess = await getSessionById(sessionId)
@@ -251,7 +241,6 @@ export default function LiveChatWidget() {
       body,
       created_at:  new Date().toISOString(),
     }
-    // Optimistic update
     setMessages(prev => [...prev, optimisticMsg])
     setInput('')
     scrollBottom()
@@ -264,10 +253,8 @@ export default function LiveChatWidget() {
         senderName: visitorName,
         body,
       })
-      // Replace optimistic dengan yang real
       setMessages(prev => prev.map(m => m.id === optimisticMsg.id ? saved : m))
     } catch (_) {
-      // Rollback optimistic
       setMessages(prev => prev.filter(m => m.id !== optimisticMsg.id))
       setInput(body)
     } finally {

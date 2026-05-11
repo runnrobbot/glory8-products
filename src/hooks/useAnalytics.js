@@ -34,7 +34,7 @@ function useCachedFetch(key, fetcher) {
     })
 
     return () => { cancelled = true }
-  }, [key]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [key]) 
 
   return state
 }

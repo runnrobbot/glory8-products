@@ -6,13 +6,12 @@
  */
 
 const SITE_NAME  = 'Glory8 Products'
-const SITE_URL   = 'https://glory8-products.vercel.app'                 // ganti sesuai domain
+const SITE_URL   = 'https://glory8-products.vercel.app'                
 const DEFAULT_IMG = `${SITE_URL}/og-default.jpg`
-const TWITTER    = '@glory8id'                         // ganti jika ada
+const TWITTER    = '@glory8id'                        
 
 function setMeta(property, content, attr = 'name') {
   if (!content) return
-  // Cari elemen yang sudah ada
   let el = document.querySelector(
     attr === 'property'
       ? `meta[property="${property}"]`
@@ -32,14 +31,11 @@ export function usePageMeta({ title, description, image, url, type = 'website' }
   const metaImage = image || DEFAULT_IMG
   const metaUrl   = url   || SITE_URL
 
-  // Jalankan synchronously di render (tidak perlu useEffect untuk ini)
   document.title = fullTitle
 
-  // Standard
   setMeta('description',    metaDesc)
   setMeta('robots',         'index, follow')
 
-  // Open Graph
   setMeta('og:title',       fullTitle,  'property')
   setMeta('og:description', metaDesc,   'property')
   setMeta('og:image',       metaImage,  'property')
@@ -48,7 +44,6 @@ export function usePageMeta({ title, description, image, url, type = 'website' }
   setMeta('og:site_name',   SITE_NAME,  'property')
   setMeta('og:locale',      'id_ID',    'property')
 
-  // Twitter Card
   setMeta('twitter:card',        'summary_large_image')
   setMeta('twitter:site',        TWITTER)
   setMeta('twitter:title',       fullTitle)

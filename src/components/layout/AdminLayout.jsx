@@ -26,8 +26,6 @@ const ROLE_LABEL = {
   staff:       'Staff',
 }
 
-// ── Sidebar dipindah ke luar AdminLayout ──────────────────────
-// Agar tidak di-recreate setiap render AdminLayout
 function AdminSidebar({ profile, role, visibleNav, onNavClick, onSignOut }) {
   return (
     <div className="flex flex-col h-full bg-white border-r border-[#E8E4DC]">
