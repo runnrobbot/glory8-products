@@ -66,7 +66,6 @@ export const useCartStore = create(
         )
         const subtotal = get().subtotal
 
-        // Return plain string — encoding dilakukan di WhatsAppOrderModal
         return [
           '*GLORY8 – Order Baru*',
           '─────────────────────',

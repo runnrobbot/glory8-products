@@ -78,7 +78,6 @@ export default function AdminUsers() {
 
     try {
       if (edit) {
-        // ── EDIT: update profile saja
         const { error } = await supabase
           .from('profiles')
           .update({
@@ -92,7 +91,6 @@ export default function AdminUsers() {
         toast.success('Pengguna diperbarui')
 
       } else {
-        // ── CREATE: panggil Edge Function dengan service_role
         if (!form.email)    throw new Error('Email wajib diisi')
         if (!form.password) throw new Error('Password wajib diisi')
         if (form.password.length < 8) throw new Error('Password minimal 8 karakter')
@@ -157,10 +155,8 @@ export default function AdminUsers() {
   )
   const selectedRole = roles.find(r => r.id === form.role_id)
 
-  /* ── UI ── */
   return (
     <div>
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-[#1C1917] text-[28px]" style={{ fontFamily: 'Cormorant Garamond, serif', fontWeight: 400 }}>
@@ -181,7 +177,6 @@ export default function AdminUsers() {
         )}
       </div>
 
-      {/* Role Legend */}
       <div className="flex flex-wrap gap-2 mb-5">
         {Object.entries(ROLE_LABEL).map(([key, label]) => (
           <span key={key} className={`text-[10px] px-2.5 py-1 ${ROLE_STYLE[key]}`} style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>
@@ -190,7 +185,6 @@ export default function AdminUsers() {
         ))}
       </div>
 
-      {/* Search */}
       <div className="mb-4">
         <input
           type="text"
@@ -202,7 +196,6 @@ export default function AdminUsers() {
         />
       </div>
 
-      {/* Table */}
       {loading ? <LoadingSpinner /> : filtered.length === 0 ? (
         <EmptyState icon={Users} title="Belum ada pengguna" description="Klik 'Tambah Pengguna' untuk menambah anggota tim" />
       ) : (() => {
@@ -275,7 +268,6 @@ export default function AdminUsers() {
         )
       })()}
 
-      {/* Modal */}
       <Modal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
@@ -314,7 +306,6 @@ export default function AdminUsers() {
             {edit && <p className="text-[11px] text-[#C4BEB5] mt-1" style={{ fontFamily: 'Inter, sans-serif' }}>Email tidak dapat diubah</p>}
           </div>
 
-          {/* Password — hanya saat create */}
           {!edit && (
             <div>
               <label className="block text-[11px] font-medium text-[#6B7280] tracking-[0.08em] uppercase mb-1.5" style={{ fontFamily: 'Inter, sans-serif' }}>

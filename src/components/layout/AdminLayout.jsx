@@ -29,7 +29,6 @@ const ROLE_LABEL = {
 function AdminSidebar({ profile, role, visibleNav, onNavClick, onSignOut }) {
   return (
     <div className="flex flex-col h-full bg-white border-r border-[#E8E4DC]">
-      {/* Brand */}
       <div className="px-6 py-5 border-b border-[#E8E4DC]">
         <Link to="/" className="flex items-center gap-2">
           <span
@@ -47,7 +46,6 @@ function AdminSidebar({ profile, role, visibleNav, onNavClick, onSignOut }) {
         </Link>
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 py-4 overflow-y-auto">
         {visibleNav.map((item) => (
           <NavLink
@@ -74,7 +72,6 @@ function AdminSidebar({ profile, role, visibleNav, onNavClick, onSignOut }) {
         ))}
       </nav>
 
-      {/* User footer */}
       <div className="border-t border-[#E8E4DC] p-4">
         <div className="flex items-center gap-3 mb-3">
           <div className="w-8 h-8 bg-[#FAF8F4] border border-[#E8E4DC] flex items-center justify-center flex-shrink-0">
@@ -104,7 +101,6 @@ function AdminSidebar({ profile, role, visibleNav, onNavClick, onSignOut }) {
   )
 }
 
-// ── Main Layout ───────────────────────────────────────────────
 export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { profile, role, signOut } = useAuthStore()
@@ -125,12 +121,10 @@ export default function AdminLayout() {
 
   return (
     <div className="flex h-screen bg-[#FAF8F4] overflow-hidden">
-      {/* Desktop Sidebar */}
       <div className="hidden lg:flex lg:w-56 xl:w-60 flex-shrink-0">
         <AdminSidebar {...sidebarProps} />
       </div>
 
-      {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div
@@ -143,9 +137,7 @@ export default function AdminLayout() {
         </div>
       )}
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top Bar */}
         <header className="bg-white border-b border-[#E8E4DC] h-14 flex items-center px-5 gap-4 flex-shrink-0">
           <button
             onClick={() => setSidebarOpen(true)}
@@ -163,7 +155,6 @@ export default function AdminLayout() {
           </Link>
         </header>
 
-        {/* Page content */}
         <main className="flex-1 overflow-y-auto">
           <div className="max-w-6xl mx-auto px-5 lg:px-8 py-8">
             <Outlet />

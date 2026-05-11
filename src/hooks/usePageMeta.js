@@ -1,9 +1,3 @@
-/**
- * usePageMeta — set <title>, meta description, og:*, twitter:* di <head>
- * Karena ini SPA (tidak SSR), meta diset via DOM.
- * Untuk share link yang benar-benar kaya (WhatsApp/Twitter unfurl),
- * perlu SSR atau prerender — lihat README.
- */
 
 const SITE_NAME  = 'Glory8 Products'
 const SITE_URL   = 'https://glory8-products.vercel.app'                

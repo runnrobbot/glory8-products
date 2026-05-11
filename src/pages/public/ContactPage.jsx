@@ -12,7 +12,6 @@ export default function ContactPage() {
   })
   return (
     <div className="min-h-screen bg-[#FAF8F4] pt-20">
-      {/* Header */}
       <div className="bg-white border-b border-[#E8E4DC] py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
@@ -22,11 +21,9 @@ export default function ContactPage() {
         </div>
       </div>
 
-      {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid lg:grid-cols-2 gap-12 xl:gap-20">
 
-          {/* ── Kiri: Info kontak ── */}
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4 }}>
             <h2 className="font-display text-2xl font-light text-[#1C1917] mb-3">
               Kami siap membantu Anda
@@ -36,7 +33,6 @@ export default function ContactPage() {
               Hubungi kami melalui salah satu saluran berikut.
             </p>
 
-            {/* Info list */}
             <div className="space-y-5 mb-10">
               {[
                 { icon: MapPin, label: 'Lokasi',   value: 'Jakarta & Surabaya, Indonesia' },
@@ -68,7 +64,6 @@ export default function ContactPage() {
               ))}
             </div>
 
-            {/* Jam operasional */}
             <div className="flex items-start gap-4 p-5 bg-white border border-[#E8E4DC]">
               <div className="w-10 h-10 bg-[#F5F2EC] flex items-center justify-center shrink-0">
                 <Clock size={15} strokeWidth={1.5} className="text-[#C9A455]" />
@@ -93,9 +88,7 @@ export default function ContactPage() {
             </div>
           </motion.div>
 
-          {/* ── Kanan: WhatsApp + Live chat CTA ── */}
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>
-            {/* WhatsApp */}
             <div className="bg-white border border-[#E8E4DC] p-6 mb-6">
               <p className="text-[10px] text-[#9C9890] uppercase tracking-widest mb-5" style={{ fontFamily: F }}>
                 Chat WhatsApp
@@ -132,7 +125,6 @@ export default function ContactPage() {
               </div>
             </div>
 
-            {/* Live Chat CTA */}
             <div className="bg-[#1C1917] p-6 text-white">
               <p className="text-[10px] text-[#C9A455] uppercase tracking-widest mb-3" style={{ fontFamily: F }}>
                 Konsultasi Online
