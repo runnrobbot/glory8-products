@@ -9,6 +9,7 @@ import EmptyState from '@/components/ui/EmptyState'
 import Pagination from '@/components/ui/Pagination'
 import toast from 'react-hot-toast'
 
+const PER_PAGE = 10
 const EMPTY_FORM = { full_name: '', email: '', phone: '', password: '', role_id: '', is_active: true }
 
 const ROLE_STYLE = {
@@ -37,6 +38,7 @@ export default function AdminUsers() {
   const [form, setForm]       = useState(EMPTY_FORM)
   const [saving, setSaving]   = useState(false)
   const [search, setSearch]   = useState('')
+  const [page, setPage]       = useState(1)
   const [showPass, setShowPass] = useState(false)
   const canManage = isSuperAdmin()
 
